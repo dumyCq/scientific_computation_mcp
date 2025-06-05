@@ -326,4 +326,5 @@ def eigen(name: str) -> dict:
 
 
 if __name__ == '__main__':
-    mcp.run()
+    print('Starting server')
+    mcp.run(transport='stdio')
