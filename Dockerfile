@@ -15,7 +15,8 @@ RUN pip install uv
 COPY . .
 
 # Install dependencies using uv
-RUN uv pip install -r requirements.txt
+RUN uv add numpy
+RUN uv add "mcp[cli]"
 
 # Expose the port (if needed)
 EXPOSE 8000
