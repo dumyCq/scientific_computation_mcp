@@ -1,13 +1,17 @@
-# Smithery configuration file: https://smithery.ai/docs/config#smitheryyaml
-
 startCommand:
   type: stdio
   configSchema:
-    # JSON Schema defining the configuration options for the MCP.
     type: object
-    properties: {}
-  commandFunction:
-    # A JS function that produces the CLI command based on the given config to start the MCP on stdio.
-    |-
-    (config) => ({ command: 'mcp_numpy', args: [], env: {} })
-  exampleConfig: {}
+    properties:
+      apiKey:
+        type: string
+        description: Your API key
+    required: []  # No required fields to allow lazy loading
+  commandFunction: |-
+    (config) => ({
+      command: 'python',
+      args: ['main.py'],
+      env: {}
+    })
+  exampleConfig:
+    apiKey: "sk-..."  # Example API key
