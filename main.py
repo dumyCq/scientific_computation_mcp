@@ -327,4 +327,4 @@ def eigen(name: str) -> dict:
 
 if __name__ == '__main__':
     print('Starting server')
-    mcp.run(transport='stdio')
+    mcp.run(transport='streamable-http')

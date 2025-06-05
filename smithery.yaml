@@ -1,17 +1,17 @@
+runtime: "container"
+
+build:
+  dockerfile: "Dockerfile"
+  dockerBuildPath: "."
+
 startCommand:
-  type: stdio
+  type: "http"
   configSchema:
-    type: object
+    type: "object"
     properties:
       apiKey:
-        type: string
-        description: Your API key
-    required: []  # No required fields to allow lazy loading
-  commandFunction: |-
-    (config) => ({
-      command: 'python',
-      args: ['main.py'],
-      env: {}
-    })
+        type: "string"
+        description: "Your API key"
+    required: ["apiKey"]
   exampleConfig:
-    apiKey: "sk-..."  # Example API key
+    apiKey: "sk-example123"
