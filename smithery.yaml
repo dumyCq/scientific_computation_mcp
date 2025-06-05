@@ -1,17 +1,16 @@
-runtime: "container"
+runtime: container
 
 build:
-  dockerfile: "Dockerfile"
-  dockerBuildPath: "."
+  dockerfile: Dockerfile
+  dockerBuildPath: .
 
 startCommand:
-  type: "http"
+  type: http
+  command: uv
+  args:
+    - run
+    - main.py
   configSchema:
-    type: "object"
-    properties:
-      apiKey:
-        type: "string"
-        description: "Your API key"
-    required: ["apiKey"]
-  exampleConfig:
-    apiKey: "sk-example123"
+    type: object
+    properties: {}
+    required: []

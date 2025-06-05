@@ -132,19 +132,6 @@ def subtract_tensors(name_a: str, name_b: str) -> np.ndarray:
 
 @mcp.tool()
 def matrix_multiplication(name_a: str, name_b: str) -> np.ndarray:
-    """
-    Performs matrix multiplication on two stored tensors.
-
-    Args:
-        name_a (str): The name of the first tensor.
-        name_b (str): The name of the second tensor.
-
-    Returns:
-        np.ndarray: The result of matrix multiplication.
-
-    Raises:
-        ValueError: If the tensor names are not found or the shapes are incompatible.
-    """
     if name_a not in tensor_store or name_b not in tensor_store:
         raise ValueError("One or both tensor names not found in the store.")
 
@@ -158,19 +145,6 @@ def matrix_multiplication(name_a: str, name_b: str) -> np.ndarray:
 
 @mcp.tool()
 def tensor_dot(name_a: str, name_b: str) -> np.ndarray:
-    """
-    Computes the tensor dot product of two stored tensors.
-
-    Args:
-        name_a (str): The name of the first tensor.
-        name_b (str): The name of the second tensor.
-
-    Returns:
-        np.ndarray: The result of the tensor dot product.
-
-    Raises:
-        ValueError: If the tensor names are not found or the shapes are incompatible.
-    """
     if name_a not in tensor_store or name_b not in tensor_store:
         raise ValueError("One or both tensor names not found in the store.")
 
@@ -302,18 +276,6 @@ def rank(name: str) -> int | list[int]:
 
 @mcp.tool()
 def eigen(name: str) -> dict:
-    """
-    Computes the eigenvalues and eigenvectors of a stored square matrix.
-
-    Args:
-        name (str): The name of the tensor to analyze.
-
-    Returns:
-        dict: A dictionary containing eigenvalues and eigenvectors.
-
-    Raises:
-        ValueError: If the tensor is not found or is not a square matrix.
-    """
     if name not in tensor_store:
         raise ValueError("The tensor name is not found in the store.")
 
@@ -325,6 +287,5 @@ def eigen(name: str) -> dict:
     return {"eigenvalues": eigenvalues, "eigenvectors": eigenvectors}
 
 
-if __name__ == '__main__':
-    print('Starting server')
-    mcp.run(transport='streamable-http')
+if __name__ == "__main__":
+    mcp.run(transport="streamable-http")

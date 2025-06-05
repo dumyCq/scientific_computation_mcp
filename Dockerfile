@@ -17,6 +17,9 @@ COPY . .
 # Install dependencies using uv
 RUN uv add numpy
 RUN uv add "mcp[cli]"
+#
+#ENV MCP_HOST=0.0.0.0
+#ENV MCP_PORT=8000
 
 # Expose the port (if needed)
 EXPOSE 8000
