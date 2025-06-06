@@ -23,6 +23,10 @@ def create_matrix(shape: list[int], values: list[float], name: str) -> np.ndarra
     Raises:
         ValueError: If the number of values does not match the product of the shape.
     """
+
+    shape = [int(x) for x in shape]
+    values = [float(x) for x in values]
+
     if len(values) != np.prod(shape):
         raise ValueError("Shape does not match number of values.")
     a = np.array(values).reshape(shape)
