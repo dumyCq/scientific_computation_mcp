@@ -136,6 +136,19 @@ def subtract_tensors(name_a: str, name_b: str) -> np.ndarray:
 
 @mcp.tool()
 def matrix_multiplication(name_a: str, name_b: str) -> np.ndarray:
+    """
+    Performs matrix multiplication between two stored tensors.
+
+    Args:
+        name_a (str): The name of the first tensor.
+        name_b (str): The name of the second tensor.
+
+    Returns:
+        np.ndarray: The result of matrix multiplication.
+
+    Raises:
+        ValueError: If either tensor is not found or their shapes are incompatible.
+    """
     if name_a not in tensor_store or name_b not in tensor_store:
         raise ValueError("One or both tensor names not found in the store.")
 
@@ -149,6 +162,19 @@ def matrix_multiplication(name_a: str, name_b: str) -> np.ndarray:
 
 @mcp.tool()
 def tensor_dot(name_a: str, name_b: str) -> np.ndarray:
+    """
+    Computes the tensor dot product between two stored tensors.
+
+    Args:
+        name_a (str): The name of the first tensor.
+        name_b (str): The name of the second tensor.
+
+    Returns:
+        np.ndarray: The result of the tensor dot product.
+
+    Raises:
+        ValueError: If either tensor is not found or their shapes are incompatible.
+    """
     if name_a not in tensor_store or name_b not in tensor_store:
         raise ValueError("One or both tensor names not found in the store.")
 
@@ -280,6 +306,20 @@ def rank(name: str) -> int | list[int]:
 
 @mcp.tool()
 def eigen(name: str) -> dict:
+    """
+    Computes the eigenvalues and right eigenvectors of a stored square matrix.
+
+    Args:
+        name (str): The name of the tensor to analyze.
+
+    Returns:
+        dict: A dictionary with keys:
+            - 'eigenvalues': np.ndarray
+            - 'eigenvectors': np.ndarray
+
+    Raises:
+        ValueError: If the tensor is not found or is not a square matrix.
+    """
     if name not in tensor_store:
         raise ValueError("The tensor name is not found in the store.")
 
