@@ -8,6 +8,9 @@ ENV PYTHONUNBUFFERED=1 \
 # Set working directory
 WORKDIR /app
 
+RUN apt-get update && apt-get install -y curl
+
+
 # Install uv package manager
 RUN pip install uv
 
@@ -18,8 +21,8 @@ COPY . .
 RUN uv add numpy
 RUN uv add "mcp[cli]"
 #
-#ENV MCP_HOST=0.0.0.0
-#ENV MCP_PORT=8000
+ENV MCP_HOST=0.0.0.0
+ENV MCP_PORT=8000
 
 # Expose the port (if needed)
 EXPOSE 8000
