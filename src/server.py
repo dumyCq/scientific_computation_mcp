@@ -7,7 +7,7 @@ tensor_store = {}
 mcp = FastMCP("scientific_computations")
 
 
-# Tensor creation and deletion
+# Tensor creation, deletion, and modification
 @mcp.tool()
 def create_matrix(shape: list[int], values: list[float], name: str) -> np.ndarray:
     """
