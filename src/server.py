@@ -84,7 +84,7 @@ def delete_matrix(name: str):
 
 
 linear_algebra.register_tools(mcp, matrix_store)
-calculus.register_tools(mcp, matrix_store)
+vector_calculus.register_tools(mcp, matrix_store)
 
 if __name__ == "__main__":
     mcp.run(transport="stdio")
