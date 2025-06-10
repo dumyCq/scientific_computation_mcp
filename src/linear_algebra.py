@@ -2,11 +2,11 @@ import ast
 import numpy as np
 
 
-def register_tools(mcp, tensor_store):
+def register_tools(mcp, matrix_store):
 
     # Matrix/tensor operations
     @mcp.tool()
-    def add_tensors(name_a: str, name_b: str) -> np.ndarray:
+    def add_matrices(name_a: str, name_b: str) -> np.ndarray:
         """
         Adds two stored tensors element-wise.
 
@@ -20,18 +20,18 @@ def register_tools(mcp, tensor_store):
         Raises:
             ValueError: If the tensor names are not found or shapes are incompatible.
         """
-        if name_a not in tensor_store or name_b not in tensor_store:
+        if name_a not in matrix_store or name_b not in matrix_store:
             raise ValueError("One or both tensor names not found in the store.")
 
         try:
-            result = np.add(tensor_store[name_a], tensor_store[name_b])
+            result = np.add(matrix_store[name_a], matrix_store[name_b])
         except ValueError as e:
             raise ValueError(f"Error adding tensors: {e}")
 
         return result
 
     @mcp.tool()
-    def subtract_tensors(name_a: str, name_b: str) -> np.ndarray:
+    def subtract_matrices(name_a: str, name_b: str) -> np.ndarray:
         """
         Adds two stored tensors element-wise.
 
@@ -45,18 +45,18 @@ def register_tools(mcp, tensor_store):
         Raises:
             ValueError: If the tensor names are not found or shapes are incompatible.
         """
-        if name_a not in tensor_store or name_b not in tensor_store:
+        if name_a not in matrix_store or name_b not in matrix_store:
             raise ValueError("One or both tensor names not found in the store.")
 
         try:
-            result = np.subtract(tensor_store[name_a], tensor_store[name_b])
+            result = np.subtract(matrix_store[name_a], matrix_store[name_b])
         except ValueError as e:
             raise ValueError(f"Error subtracting tensors: {e}")
 
         return result
 
     @mcp.tool()
-    def matrix_multiplication(name_a: str, name_b: str) -> np.ndarray:
+    def multiply_matrices(name_a: str, name_b: str) -> np.ndarray:
         """
         Performs matrix multiplication between two stored tensors.
 
@@ -70,43 +70,18 @@ def register_tools(mcp, tensor_store):
         Raises:
             ValueError: If either tensor is not found or their shapes are incompatible.
         """
-        if name_a not in tensor_store or name_b not in tensor_store:
+        if name_a not in matrix_store or name_b not in matrix_store:
             raise ValueError("One or both tensor names not found in the store.")
 
         try:
-            result = np.matmul(tensor_store[name_a], tensor_store[name_b])
+            result = np.matmul(matrix_store[name_a], matrix_store[name_b])
         except ValueError as e:
             raise ValueError(f"Error subtracting tensors: {e}")
 
         return result
 
     @mcp.tool()
-    def tensor_dot(name_a: str, name_b: str) -> np.ndarray:
-        """
-        Computes the tensor dot product between two stored tensors.
-
-        Args:
-            name_a (str): The name of the first tensor.
-            name_b (str): The name of the second tensor.
-
-        Returns:
-            np.ndarray: The result of the tensor dot product.
-
-        Raises:
-            ValueError: If either tensor is not found or their shapes are incompatible.
-        """
-        if name_a not in tensor_store or name_b not in tensor_store:
-            raise ValueError("One or both tensor names not found in the store.")
-
-        try:
-            result = np.tensordot(tensor_store[name_a], tensor_store[name_b])
-        except ValueError as e:
-            raise ValueError(f"Error subtracting tensors: {e}")
-
-        return result
-
-    @mcp.tool()
-    def scale_tensor(name: str, scale_factor: float, in_place: bool = True) -> np.ndarray:
+    def scale_matrix(name: str, scale_factor: float, in_place: bool = True) -> np.ndarray:
         """
         Scales a stored tensor by a scalar factor.
 
@@ -121,13 +96,13 @@ def register_tools(mcp, tensor_store):
         Raises:
             ValueError: If the tensor name is not found in the store.
         """
-        if name not in tensor_store:
+        if name not in matrix_store:
             raise ValueError("The tensor name is not found in the store.")
 
-        result = tensor_store[name] * scale_factor
+        result = matrix_store[name] * scale_factor
 
         if in_place:
-            tensor_store[name] = result
+            matrix_store[name] = result
 
         return result
 
@@ -145,11 +120,11 @@ def register_tools(mcp, tensor_store):
         Raises:
             ValueError: If the matrix is not found, is not square, or is singular (non-invertible).
         """
-        if name not in tensor_store:
+        if name not in matrix_store:
             raise ValueError("The tensor name is not found in the store.")
 
         try:
-            result = np.linalg.inv(tensor_store[name])
+            result = np.linalg.inv(matrix_store[name])
         except ValueError as e:
             raise ValueError(f"Error computing matrix inverse: {e}")
 
@@ -169,10 +144,10 @@ def register_tools(mcp, tensor_store):
         Raises:
             ValueError: If the tensor name is not found in the store.
         """
-        if name not in tensor_store:
+        if name not in matrix_store:
             raise ValueError("The tensor name is not found in the store.")
 
-        return tensor_store[name].T
+        return matrix_store[name].T
 
     @mcp.tool()
     def determinant(name: str) -> float:
@@ -188,11 +163,11 @@ def register_tools(mcp, tensor_store):
         Raises:
             ValueError: If the matrix is not found or is not square.
         """
-        if name not in tensor_store:
+        if name not in matrix_store:
             raise ValueError("The tensor name is not found in the store.")
 
         try:
-            result = np.linalg.det(tensor_store[name])
+            result = np.linalg.det(matrix_store[name])
         except ValueError as e:
             raise ValueError(f"Error computing determinant: {e}")
 
@@ -212,10 +187,10 @@ def register_tools(mcp, tensor_store):
         Raises:
             ValueError: If the tensor name is not found in the store.
         """
-        if name not in tensor_store:
+        if name not in matrix_store:
             raise ValueError("The tensor name is not found in the store.")
 
-        result = np.linalg.matrix_rank(tensor_store[name])
+        result = np.linalg.matrix_rank(matrix_store[name])
         return result
 
     @mcp.tool()
@@ -234,11 +209,11 @@ def register_tools(mcp, tensor_store):
         Raises:
             ValueError: If the tensor is not found or is not a square matrix.
         """
-        if name not in tensor_store:
+        if name not in matrix_store:
             raise ValueError("The tensor name is not found in the store.")
 
         try:
-            eigenvalues, eigenvectors = np.linalg.eig(tensor_store[name])
+            eigenvalues, eigenvectors = np.linalg.eig(matrix_store[name])
         except ValueError as e:
             raise ValueError(f"Error computing eigenvalues and eigenvectors: {e}")
 
@@ -264,11 +239,11 @@ def register_tools(mcp, tensor_store):
         Raises:
             ValueError: If the matrix is not found or decomposition fails.
         """
-        if name not in tensor_store:
+        if name not in matrix_store:
             raise ValueError("The tensor name is not found in the store.")
 
         try:
-            q, r = np.linalg.qr(tensor_store[name])
+            q, r = np.linalg.qr(matrix_store[name])
         except ValueError as e:
             raise ValueError(f"Error computing QR decomposition: {e}")
 
@@ -294,11 +269,11 @@ def register_tools(mcp, tensor_store):
         Raises:
             ValueError: If the matrix is not found or decomposition fails.
         """
-        if name not in tensor_store:
+        if name not in matrix_store:
             raise ValueError("The tensor name is not found in the store.")
 
         try:
-            u, s, v_t = np.linalg.svd(tensor_store[name])
+            u, s, v_t = np.linalg.svd(matrix_store[name])
         except ValueError as e:
             raise ValueError(f"Error computing SVD decomposition: {e}")
 
@@ -345,8 +320,8 @@ def register_tools(mcp, tensor_store):
             ValueError: If the matrix name is not found or non-invertible.
         """
 
-        if name not in tensor_store:
+        if name not in matrix_store:
             raise ValueError("The tensor name is not found in the store.")
 
         new_basis = np.asarray(new_basis)
-        return np.linalg.inv(new_basis) @ tensor_store[name] @ new_basis
+        return np.linalg.inv(new_basis) @ matrix_store[name] @ new_basis

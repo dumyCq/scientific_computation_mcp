@@ -1,13 +1,14 @@
 import numpy as np
 from mcp.server.fastmcp import FastMCP
 import linear_algebra
+import vector_calculus
 
-tensor_store = {}
+matrix_store = {}
 
 mcp = FastMCP("scientific_computations")
 
 
-# Tensor creation, deletion, and modification
+# Matrix creation, deletion, and modification
 @mcp.tool()
 def create_matrix(shape: list[int], values: list[float], name: str) -> np.ndarray:
     """
@@ -32,12 +33,12 @@ def create_matrix(shape: list[int], values: list[float], name: str) -> np.ndarra
         raise ValueError("Shape does not match number of values.")
     a = np.array(values).reshape(shape)
 
-    tensor_store[name] = a
+    matrix_store[name] = a
     return a
 
 
 @mcp.tool()
-def view_tensor(name: str) -> dict:
+def view_matrix(name: str) -> dict:
     """
     Returns an immutable view of a previously stored NumPy tensor from the in-memory tensor store.
 
@@ -47,22 +48,22 @@ def view_tensor(name: str) -> dict:
         dict: The in-store dictionary for tensors
 
     """
-    return tensor_store[name]
+    return matrix_store[name]
 
 
 @mcp.resource("data://tensor_store")
-def list_tensor_names() -> str:
+def list_matrix_names() -> str:
     """
     Lists the names of all tensors currently stored in the tensor store.
 
     Returns:
         str: A newline-separated list of tensor names.
     """
-    return "\n".join(tensor_store.keys())
+    return "\n".join(matrix_store.keys())
 
 
 @mcp.tool()
-def delete_tensor(name: str):
+def delete_matrix(name: str):
     """
     Deletes a tensor from the in-memory tensor store.
 
@@ -73,16 +74,17 @@ def delete_tensor(name: str):
         ValueError: If the tensor name is not found in the store or if an error occurs during deletion.
     """
 
-    if name not in tensor_store:
+    if name not in matrix_store:
         raise ValueError("One or both tensor names not found in the store.")
 
     try:
-        tensor_store.pop(name)
+        matrix_store.pop(name)
     except ValueError as e:
         raise ValueError(f"Error removing tensor:{e}")
 
 
-linear_algebra.register_tools(mcp, tensor_store)
+linear_algebra.register_tools(mcp, matrix_store)
+calculus.register_tools(mcp, matrix_store)
 
 if __name__ == "__main__":
     mcp.run(transport="stdio")

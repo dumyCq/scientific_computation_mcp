@@ -20,6 +20,7 @@ COPY . .
 # Install dependencies using uv
 RUN uv add numpy
 RUN uv add "mcp[cli]"
+RUN uv add sympy
 
 
 # Expose the port (if needed)
