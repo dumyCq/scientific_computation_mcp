@@ -86,6 +86,15 @@ def register_tools(mcp, matrix_store):
 
     @mcp.tool()
     def gradient(f_str: str) -> str:
+        """
+        Computes the symbolic gradient of a scalar function.
+
+        Args:
+            f_str (str): A string representing a scalar function (e.g., "x**2 + y*z").
+
+        Returns:
+            str: A string representation of the symbolic gradient as a vector.
+        """
         f_sym = sp.sympify(f_str)
         variable = sorted(list(f_sym.free_symbols), key=lambda s: s.name)
         grad = sp.Matrix([f_sym]).jacobian(variable)
@@ -93,6 +102,16 @@ def register_tools(mcp, matrix_store):
 
     @mcp.tool()
     def curl(f_str: str, point: list[float] = None) -> dict:
+        """
+        Computes the symbolic curl of a vector field, optionally evaluated at a point.
+
+        Args:
+            f_str (str): A string representing the vector field in list format (e.g., "[x+y, x, 2*z]").
+            point (list[float], optional): A list of coordinates [x, y, z] to evaluate the curl numerically.
+
+        Returns:
+            dict: A dictionary with the symbolic curl as a string, and optionally the evaluated vector.
+        """
         # 1. Trim "[...]" and split
         raw = f_str.strip().strip("[]")
         comps_str = [c.strip() for c in raw.split(",")]
@@ -115,14 +134,24 @@ def register_tools(mcp, matrix_store):
         result = {"curl_sym": str(curl_sym)}
 
         if point:
-            vars = [C.x, C.y, C.z]
+            variables = [C.x, C.y, C.z]
             comps = [curl_sym.dot(dir_) for dir_ in (C.i, C.j, C.k)]
-            lamb = sp.lambdify(vars, sp.Matrix(comps), 'numpy')
+            lamb = sp.lambdify(variables, sp.Matrix(comps), 'numpy')
             result['curl_val'] = [float(v) for v in lamb(*point)]
         return result
 
     @mcp.tool()
     def divergence(f_str: str, point: list[float] = None) -> dict:
+        """
+        Computes the symbolic divergence of a vector field, optionally evaluated at a point.
+
+        Args:
+            f_str (str): A string representing the vector field in list format (e.g., "[x+y, x, 2*z]").
+            point (list[float], optional): A list of coordinates [x, y, z] to evaluate the divergence numerically.
+
+        Returns:
+            dict: A dictionary with the symbolic divergence as a string, and optionally the evaluated scalar.
+        """
         # 1. Trim "[...]" and split
         raw = f_str.strip().strip("[]")
         comps_str = [c.strip() for c in raw.split(",")]
