@@ -5,7 +5,7 @@ from sympy import parse_expr
 from sympy.vector import Del, CoordSys3D
 
 
-def register_tools(mcp, matrix_store):
+def register_tools(mcp, tensor_store):
     # Basic vector operations
 
     @mcp.tool()
@@ -23,12 +23,12 @@ def register_tools(mcp, matrix_store):
         Raises:
             ValueError: If the vector name is not found or projection fails.
         """
-        if name not in matrix_store:
+        if name not in tensor_store:
             raise ValueError("The tensor name is not found in the store.")
 
         try:
             new_vector = np.asarray(new_vector)
-            result = np.dot(matrix_store[name], new_vector) / np.linalg.norm(new_vector) * new_vector
+            result = np.dot(tensor_store[name], new_vector) / np.linalg.norm(new_vector) * new_vector
         except ValueError as e:
             raise ValueError(f"Error computing projection:{e}")
 
@@ -49,11 +49,11 @@ def register_tools(mcp, matrix_store):
         Raises:
             ValueError: If either vector is not found or if the dot product computation fails.
         """
-        if name_a not in matrix_store or name_b not in matrix_store:
+        if name_a not in tensor_store or name_b not in tensor_store:
             raise ValueError("One or both tensor names not found in the store.")
 
         try:
-            result = np.dot(matrix_store[name_a], matrix_store[name_b])
+            result = np.dot(tensor_store[name_a], tensor_store[name_b])
         except ValueError as e:
             raise ValueError(f"Error computing dot product:{e}")
 
@@ -74,11 +74,11 @@ def register_tools(mcp, matrix_store):
         Raises:
             ValueError: If either vector is not found or if the cross product computation fails.
         """
-        if name_a not in matrix_store or name_b not in matrix_store:
+        if name_a not in tensor_store or name_b not in tensor_store:
             raise ValueError("One or both tensor names not found in the store.")
 
         try:
-            result = np.cross(matrix_store[name_a], matrix_store[name_b])
+            result = np.cross(tensor_store[name_a], tensor_store[name_b])
         except ValueError as e:
             raise ValueError(f"Error computing cross product:{e}")
 
