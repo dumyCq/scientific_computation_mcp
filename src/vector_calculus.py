@@ -2,7 +2,26 @@ import numpy as np
 import sympy as sp
 from sympy.parsing.sympy_parser import standard_transformations, implicit_multiplication_application
 from sympy import parse_expr
-from sympy.vector import Del, CoordSys3D
+from sympy.vector import Del, CoordSys3D, directional_derivative
+
+C = CoordSys3D('C')
+
+
+def parse_field(f_str: str):
+    # 1. Trim "[...]" and split
+    raw = f_str.strip().strip("[]")
+    comps_str = [c.strip() for c in raw.split(",")]
+
+    # 2. Set up parser
+    transformations = standard_transformations + (implicit_multiplication_application,)
+    local_ns = {"x": C.x, "y": C.y, "z": C.z, "sin": sp.sin, "cos": sp.cos}
+
+    # 3. Parse each component
+    comp_syms = [
+        parse_expr(expr, local_dict=local_ns, transformations=transformations)
+        for expr in comps_str
+    ]
+    return comp_syms[0] * C.i + comp_syms[1] * C.j + comp_syms[2] * C.k
 
 
 def register_tools(mcp, tensor_store):
@@ -98,7 +117,7 @@ def register_tools(mcp, tensor_store):
         f_sym = sp.sympify(f_str)
         variable = sorted(list(f_sym.free_symbols), key=lambda s: s.name)
         grad = sp.Matrix([f_sym]).jacobian(variable)
-        return str(grad)
+        return grad
 
     @mcp.tool()
     def curl(f_str: str, point: list[float] = None) -> dict:
@@ -112,23 +131,9 @@ def register_tools(mcp, tensor_store):
         Returns:
             dict: A dictionary with the symbolic curl as a string, and optionally the evaluated vector.
         """
-        # 1. Trim "[...]" and split
-        raw = f_str.strip().strip("[]")
-        comps_str = [c.strip() for c in raw.split(",")]
 
-        # 2. Set up parser
-        transformations = standard_transformations + (implicit_multiplication_application,)
-        C = CoordSys3D('C')
-        local_ns = {"x": C.x, "y": C.y, "z": C.z, "sin": sp.sin, "cos": sp.cos}
+        F = parse_field(f_str)
 
-        # 3. Parse each component
-        comp_syms = [
-            parse_expr(expr, local_dict=local_ns, transformations=transformations)
-            for expr in comps_str
-        ]
-        F = comp_syms[0] * C.i + comp_syms[1] * C.j + comp_syms[2] * C.k
-
-        # 4. Compute symbolic curl
         curl_sym = Del().cross(F).doit()
 
         result = {"curl_sym": str(curl_sym)}
@@ -152,21 +157,9 @@ def register_tools(mcp, tensor_store):
         Returns:
             dict: A dictionary with the symbolic divergence as a string, and optionally the evaluated scalar.
         """
-        # 1. Trim "[...]" and split
-        raw = f_str.strip().strip("[]")
-        comps_str = [c.strip() for c in raw.split(",")]
 
-        # 2. Set up parser
-        transformations = standard_transformations + (implicit_multiplication_application,)
-        C = CoordSys3D('C')
-        local_ns = {"x": C.x, "y": C.y, "z": C.z, "sin": sp.sin, "cos": sp.cos}
+        F = parse_field(f_str)
 
-        # 3. Parse each component
-        comp_syms = [
-            parse_expr(expr, local_dict=local_ns, transformations=transformations)
-            for expr in comps_str
-        ]
-        F = comp_syms[0] * C.i + comp_syms[1] * C.j + comp_syms[2] * C.k
         div_sym = Del().dot(F, doit=True)
         result = {'divergence_sym': str(div_sym)}
 
@@ -175,3 +168,46 @@ def register_tools(mcp, tensor_store):
             lamb = sp.lambdify(variables, div_sym, 'numpy')
             result['divergence_val'] = float(lamb(*point))
         return result
+
+    @mcp.tool()
+    def laplacian(f_str: str, is_vector: bool = False) -> str:
+        """
+        Computes the Laplacian of a scalar or vector field symbolically.
+
+        Args:
+            f_str (str): Scalar function as "x**2 + y*z" or vector "[Fx, Fy, Fz]".
+            is_vector (bool): Set True to compute vector Laplacian.
+
+        Returns:
+            str: Symbolic result of the Laplacian—scalar or list of 3 components.
+        """
+        if not is_vector:
+            f = parse_expr(f_str, local_dict={"x": C.x, "y": C.y, "z": C.z})
+            lap = Del().dot(Del()(f)).doit()
+            return str(lap)
+        else:
+            F = parse_field(f_str)
+            # Extract components
+            comps = F.to_matrix(C).tolist()
+            lap_comps = [Del().dot(Del()(comp)).doit() for comp in comps]
+            return str(lap_comps)  # list form
+
+    @mcp.tool()
+    def directional_deriv(f_str: str, u: list[float], unit: bool = True) -> str:
+        """
+        Computes symbolic directional derivative of scalar field along a vector direction.
+
+        Args: f_str (str): Expression like "x*y*z". u (list[float]): Direction vector [vx, vy, vz]. unit (bool): True
+        if u should be normalized before calculating directional derivative. Set to True by default.
+
+        Returns:
+            str: Symbolic result as string.
+        """
+        f = parse_expr(f_str, local_dict={"x": C.x, "y": C.y, "z": C.z})
+        v = u[0] * C.i + u[1] * C.j + u[2] * C.k
+
+        if unit:
+            v = v.normalize()
+
+        expr = directional_derivative(f, v).doit()
+        return str(expr)
