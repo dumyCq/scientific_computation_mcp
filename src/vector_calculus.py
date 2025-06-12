@@ -1,26 +1,43 @@
 import numpy as np
 import sympy as sp
 from sympy.parsing.sympy_parser import standard_transformations, implicit_multiplication_application
-from sympy import parse_expr
+from sympy import parse_expr, symbols
 from sympy.vector import Del, CoordSys3D, directional_derivative
+import matplotlib.pyplot as plt
+from io import BytesIO
+from mcp.server.fastmcp import Image
 
 C = CoordSys3D('C')
+x, y, z = symbols("x y z")
 
 
 def parse_field(f_str: str):
-    # 1. Trim "[...]" and split
+    """
+    Parse a vector field string into a Sympy Vector.
+
+    Args:
+        f_str (str): e.g. "[z, -y, x]".
+        x_coord, y_coord, z_coord: optional sympy symbols (e.g., x, C.x).
+          If None, defaults to bare symbols (x, y, z).
+
+    Returns:
+        sympy.vector.Vector: symbolic vector in CoordSys3D C.
+    """
+
     raw = f_str.strip().strip("[]")
     comps_str = [c.strip() for c in raw.split(",")]
 
-    # 2. Set up parser
     transformations = standard_transformations + (implicit_multiplication_application,)
-    local_ns = {"x": C.x, "y": C.y, "z": C.z, "sin": sp.sin, "cos": sp.cos}
+    local_ns = {
+        "x": C.x, "y": C.y, "z": C.z,
+        "sin": sp.sin, "cos": sp.cos
+    }
 
-    # 3. Parse each component
     comp_syms = [
         parse_expr(expr, local_dict=local_ns, transformations=transformations)
         for expr in comps_str
     ]
+
     return comp_syms[0] * C.i + comp_syms[1] * C.j + comp_syms[2] * C.k
 
 
@@ -211,3 +228,60 @@ def register_tools(mcp, tensor_store):
 
         expr = directional_derivative(f, v).doit()
         return str(expr)
+
+    @mcp.tool()
+    def plot_vector_field(f_str: str, bounds=(-1, 1, -1, 1, -1, 1), n: int = 10) -> Image:
+        """
+        Plots a 3D vector field from a string "[u(x,y,z), v(x,y,z), w(x,y,z)]"
+
+        Args:
+            f_str: string representation of 3D field, e.g. "[z, -y, x]".
+            bounds: (xmin, xmax, ymin, ymax, zmin, zmax)
+            n: grid resolution per axis
+
+        Returns: Displayed Matplotlib 3D quiver plot (no image return needed)
+        """
+        # 1. Extract component strings
+        raw = f_str.strip().lstrip("[").rstrip("]")
+        u_s, v_s, w_s = [s.strip() for s in raw.split(",")]
+
+        # 2. Parse each component with bare symbols
+        transforms = standard_transformations + (implicit_multiplication_application,)
+        local_ns = {"x": x, "y": y, "z": z, "sin": sp.sin, "cos": sp.cos}
+        u_expr = parse_expr(u_s, local_dict=local_ns, transformations=transforms)
+        v_expr = parse_expr(v_s, local_dict=local_ns, transformations=transforms)
+        w_expr = parse_expr(w_s, local_dict=local_ns, transformations=transforms)
+
+        # 3. Convert to numpy functions
+        u_fn = sp.lambdify((x, y, z), u_expr, "numpy")
+        v_fn = sp.lambdify((x, y, z), v_expr, "numpy")
+        w_fn = sp.lambdify((x, y, z), w_expr, "numpy")
+
+        # 4. Prepare grid
+        xmin, xmax, ymin, ymax, zmin, zmax = bounds
+        X, Y, Z = np.meshgrid(
+            np.linspace(xmin, xmax, n),
+            np.linspace(ymin, ymax, n),
+            np.linspace(zmin, zmax, n),
+            indexing="ij"
+        )
+        U = u_fn(X, Y, Z)
+        V = v_fn(X, Y, Z)
+        W = w_fn(X, Y, Z)
+
+        # 5. Plot quiver
+        fig = plt.figure(figsize=(8, 6))
+        ax = fig.add_subplot(projection="3d")
+        ax.quiver(X, Y, Z, U, V, W, length=0.1, normalize=True, color="blue")
+        ax.set_xlabel("X")
+        ax.set_ylabel("Y")
+        ax.set_zlabel("Z")
+        ax.set_title("3D Vector Field")
+        plt.tight_layout()
+        # Save to buffer and return
+        buf = BytesIO()
+        fig.savefig(buf, format="png")
+        plt.close(fig)
+        img_bytes = buf.getvalue()
+
+        return Image(data=img_bytes, format="png")
