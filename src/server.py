@@ -2,6 +2,7 @@ import numpy as np
 from mcp.server.fastmcp import FastMCP
 import linear_algebra
 import vector_calculus
+import visualization
 
 tensor_store = {}
 
@@ -85,6 +86,7 @@ def delete_tensor(name: str):
 
 linear_algebra.register_tools(mcp, tensor_store)
 vector_calculus.register_tools(mcp, tensor_store)
+visualization.register_tools(mcp)
 
 if __name__ == "__main__":
     mcp.run(transport="stdio")
