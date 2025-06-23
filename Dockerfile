@@ -22,7 +22,7 @@ RUN uv add numpy
 RUN uv add "mcp[cli]"
 RUN uv add sympy
 RUN uv add matplotlib
-
+RUN uv add pydantic
 
 # Expose the port (if needed)
 #EXPOSE 8000
