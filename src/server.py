@@ -1,5 +1,9 @@
+from typing import Annotated
+
 import numpy as np
 from mcp.server.fastmcp import FastMCP
+from pydantic import Field
+
 import linear_algebra
 import vector_calculus
 import visualization
@@ -11,7 +15,10 @@ mcp = FastMCP("scientific_computations")
 
 # Matrix creation, deletion, and modification
 @mcp.tool()
-def create_tensor(shape: list[int], values: list[float], name: str) -> np.ndarray:
+def create_tensor(shape: Annotated[list[int], Field(min_items=1, description="Tensor shape as list of integers")],
+                  values: Annotated[
+                      list[float], Field(min_items=1, description="Flat list of floats to fill the tensor")],
+                  name: str) -> np.ndarray:
     """
     Creates a NumPy array (matrix) with a specified shape and values.
 
