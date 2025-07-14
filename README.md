@@ -1,10 +1,10 @@
 [![MseeP.ai Security Assessment Badge](https://mseep.net/pr/aman-amith-shastry-scientific-computation-mcp-badge.png)](https://mseep.ai/app/aman-amith-shastry-scientific-computation-mcp)
 
-[![Verified on MseeP](https://mseep.ai/badge.svg)](https://mseep.ai/app/5927ad38-70f6-4f5b-9778-e61ec902d735)
-
 # Scientific Computation MCP
 
 [![smithery badge](https://smithery.ai/badge/@Aman-Amith-Shastry/scientific_computation_mcp)](https://smithery.ai/server/@Aman-Amith-Shastry/scientific_computation_mcp)
+
+[![Verified on MseeP](https://mseep.ai/badge.svg)](https://mseep.ai/app/5927ad38-70f6-4f5b-9778-e61ec902d735)
 
 ## Installation Guide
 
