@@ -4,9 +4,9 @@ import numpy as np
 from mcp.server.fastmcp import FastMCP
 from pydantic import Field
 
-import linear_algebra
-import vector_calculus
-import visualization
+from . import linear_algebra
+from . import vector_calculus
+from . import visualization
 
 tensor_store = {}
 
